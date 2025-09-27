@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎯 Special Keno 🎯</title>
+    <title>🎯 Keno 🎯</title>
     <style>
         /* Neon aesthetic styles */
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Major+Mono+Display&display=swap');
@@ -96,6 +96,9 @@
             border:1.6px solid rgba(0,245,255,0.06);transition:transform .14s cubic-bezier(.2,.8,.2,1), box-shadow .14s cubic-bezier(.2,.8,.2,1), background .14s ease;
             box-shadow:0 6px 14px rgba(0,0,0,0.6);
             padding:6px;
+            /* touch target minimum to improve tappability on mobile */
+            min-width:48px; /* ensures roughly 48x48 touch target */
+            min-height:48px;
         }
 
         .number-cell:hover{transform:translateY(-6px) scale(1.06);box-shadow:0 18px 40px rgba(0,0,0,0.7), 0 0 18px rgba(0,245,255,0.06)}
@@ -144,15 +147,18 @@
             /* draw ball used during the slow draw animation */
             .draw-ball{
                 position:absolute; /* place inside the board so it scrolls with content */
-                width:56px;height:56px;border-radius:50%;z-index:120;color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.2rem;pointer-events:none;
+                /* scale the ball responsively on small screens */
+                width:clamp(40px, 8vw, 56px);
+                height:clamp(40px, 8vw, 56px);
+                border-radius:50%;z-index:120;color:#fff;display:flex;align-items:center;justify-content:center;font-size:clamp(0.9rem,2.4vw,1.2rem);pointer-events:none;
                 background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.9), rgba(255,255,255,0.2) 10%, transparent 30%), linear-gradient(135deg, rgba(255,160,240,0.12), rgba(0,245,255,0.12));
                 box-shadow:0 6px 26px rgba(0,0,0,0.6), 0 0 30px rgba(0,245,255,0.12);
-                transition:opacity .25s ease, filter .25s ease;
+                transition:opacity .25s ease, filter .25s ease, transform .25s ease;
                 opacity:0;backdrop-filter:blur(2px);
             }
-            .draw-ball .core{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#fff7, #ffffff22);box-shadow:0 0 18px rgba(255,255,255,0.4) inset,0 0 30px rgba(0,245,255,0.12)}
+            .draw-ball .core{width:clamp(26px,5vw,34px);height:clamp(26px,5vw,34px);border-radius:50%;background:linear-gradient(135deg,#fff7, #ffffff22);box-shadow:0 0 18px rgba(255,255,255,0.4) inset,0 0 30px rgba(0,245,255,0.12)}
 
-        .controls{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
+    .controls{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
 
     /* speed control styles */
     .speed-control{display:flex;align-items:center;gap:8px;color:rgba(230,255,249,0.9);font-weight:700}
@@ -179,7 +185,36 @@
         @keyframes explode{0%{transform:scale(1);opacity:1}100%{transform:scale(.1) translate(var(--dx),var(--dy));opacity:0}}
 
         /* small responsive tweaks */
-        @media (max-width:640px){h1{font-size:2rem}.keno-board{gap:8px}}
+            @media (max-width:640px){
+                h1{font-size:2rem}
+                .keno-board{gap:8px}
+            }
+
+            /* Mobile-first responsive board columns and control layout */
+            @media (max-width:520px){
+                /* reduce visual clutter on small screens */
+                .floating-shapes{display:none}
+
+                /* stack controls vertically for thumb reach */
+                .controls{flex-direction:column;align-items:stretch}
+                .controls > button{width:100%;padding:14px 12px}
+                .speed-control{justify-content:space-between;width:100%;padding:6px 4px}
+
+                /* fewer columns on especially narrow devices so cells remain tappable */
+                .keno-board{grid-template-columns:repeat(8,1fr)}
+            }
+
+            @media (max-width:420px){
+                .keno-board{grid-template-columns:repeat(5,1fr)}
+                .number-cell{font-size:1rem}
+                .speed-control input[type="range"]{width:120px}
+            }
+
+            /* Respect reduced motion preferences */
+            @media (prefers-reduced-motion: reduce){
+                .shape, .draw-ball, .particle, .number-cell{animation-duration: 1ms !important; transition-duration: 1ms !important}
+                .shape{animation: none}
+            }
     </style>
 </head>
 <body>
@@ -247,7 +282,7 @@
     </div>
 
     <div class="container">
-        <h1>🎯 SURREALIST KENO 🎯</h1>
+        <h1>🎯 KENO 🎯</h1>
         
         <div class="game-info">
             <div class="info-item">Selected: <span id="selected-count">0</span>/10</div>
